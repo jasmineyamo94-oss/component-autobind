@@ -1,0 +1,22 @@
+{
+  "name": "JasmineYamo.ComponentAutoBind.Tests.Runtime",
+  "rootNamespace": "JasmineYamo.ComponentAutoBind.Tests.Runtime",
+  "references": [
+    "JasmineYamo.ComponentAutoBind"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "testAssemblies": true
+}

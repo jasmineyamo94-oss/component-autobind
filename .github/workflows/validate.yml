@@ -1,0 +1,15 @@
+name: Validate package
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  static-validation:
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Validate package layout and dependencies
+        shell: pwsh
+        run: ./Tools/ValidatePackage.ps1

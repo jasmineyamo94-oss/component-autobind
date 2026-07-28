@@ -1,0 +1,14 @@
+{
+  "name": "JasmineYamo.ComponentAutoBind",
+  "rootNamespace": "JasmineYamo.ComponentAutoBind",
+  "references": [],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}
