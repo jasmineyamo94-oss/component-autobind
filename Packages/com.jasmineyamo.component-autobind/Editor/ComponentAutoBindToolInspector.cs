@@ -213,20 +213,21 @@ namespace JasmineYamo.ComponentAutoBind.Editor
         {
             AutoBindValidationResult validationResult = AutoBindValidator.Validate(m_Target, m_Setting);
             string report = validationResult.BuildReport();
-            string title = validationResult.IsValid ? "Validation Passed" : "Validation Failed";
-            string summary =
-                $"{title}.\nErrors: {validationResult.ErrorCount}; Warnings: {validationResult.WarningCount}.\n\n{report}";
 
-            if (validationResult.IsValid)
-            {
-                Debug.Log($"[{m_Target.name}] Auto Bind validation passed.\n{report}", m_Target);
-            }
-            else
+            if (!validationResult.IsValid)
             {
                 Debug.LogError($"[{m_Target.name}] Auto Bind validation failed.\n{report}", m_Target);
             }
-
-            EditorUtility.DisplayDialog(title, summary, "OK");
+            else if (validationResult.WarningCount > 0)
+            {
+                Debug.LogWarning(
+                    $"[{m_Target.name}] Auto Bind validation passed with warnings.\n{report}",
+                    m_Target);
+            }
+            else
+            {
+                Debug.Log($"[{m_Target.name}] Auto Bind validation passed.\n{report}", m_Target);
+            }
         }
 
         private void GenerateCode()
@@ -238,11 +239,6 @@ namespace JasmineYamo.ComponentAutoBind.Editor
                 Debug.LogError(
                     $"[{m_Target.name}] Auto Bind generation was blocked by validation.\n{report}",
                     m_Target);
-                EditorUtility.DisplayDialog(
-                    "Generation Failed",
-                    $"Validation failed.\nErrors: {validationResult.ErrorCount}; "
-                    + $"Warnings: {validationResult.WarningCount}.\n\n{report}",
-                    "OK");
                 return;
             }
 
@@ -257,18 +253,13 @@ namespace JasmineYamo.ComponentAutoBind.Editor
             {
                 string filePath = AutoBindCodeGenerator.Generate(m_Target, m_Setting);
                 AssetDatabase.Refresh();
-                EditorUtility.DisplayDialog(
-                    "Generation Complete",
-                    $"Generated:\n{filePath}",
-                    "OK");
+                Debug.Log(
+                    $"[{m_Target.name}] Auto Bind generated code:\n{filePath}",
+                    m_Target);
             }
             catch (Exception exception)
             {
                 Debug.LogException(exception, m_Target);
-                EditorUtility.DisplayDialog(
-                    "Generation Failed",
-                    exception.Message,
-                    "OK");
             }
         }
     }

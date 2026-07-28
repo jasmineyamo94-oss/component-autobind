@@ -17,6 +17,7 @@ namespace JasmineYamo.ComponentAutoBind.Samples.BasicUGUI
 
         private AutoBindComponentSet m_AutoBindComponents;
 
+        [global::System.CodeDom.Compiler.GeneratedCode("Component Auto Bind", "0.1.0")]
         public void EnsureAutoBind(GameObject go)
         {
             if (m_AutoBindComponents != null)

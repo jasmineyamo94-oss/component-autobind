@@ -127,6 +127,9 @@ namespace JasmineYamo.ComponentAutoBind.Editor
                 .AppendLine("private AutoBindComponentSet m_AutoBindComponents;");
             builder.AppendLine();
             builder.Append(memberIndent)
+                .AppendLine(
+                    "[global::System.CodeDom.Compiler.GeneratedCode(\"Component Auto Bind\", \"0.1.0\")]");
+            builder.Append(memberIndent)
                 .Append(overridesEnsureAutoBind
                     ? "public override void EnsureAutoBind(GameObject go)"
                     : "public void EnsureAutoBind(GameObject go)")

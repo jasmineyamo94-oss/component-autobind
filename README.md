@@ -55,3 +55,5 @@ The package includes Runtime and Editor tests under `Tests/`. Run them from Unit
 This package intentionally does not contain VContainer adapters, ViewCore interfaces, generated game-project bindings, project settings assets, old example scenes, or third-party generic dictionary code. An integration package can depend on this core package later without coupling the core runtime to a specific DI framework.
 
 See [Documentation~/GettingStarted.md](Documentation~/GettingStarted.md) for configuration details and [CHANGELOG.md](CHANGELOG.md) for release history.
+
+参考库：[CatImmortal/ComponentAutoBindTool](https://github.com/CatImmortal/ComponentAutoBindTool)

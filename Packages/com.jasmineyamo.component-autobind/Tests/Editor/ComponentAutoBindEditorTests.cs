@@ -124,6 +124,9 @@ namespace JasmineYamo.ComponentAutoBind.Tests.Editor
                 StringAssert.Contains("IAutoBindTarget", firstCode);
                 StringAssert.Contains("IAutoBindComponentSet", firstCode);
                 StringAssert.Contains("AutoBindComponentSet", firstCode);
+                StringAssert.Contains(
+                    "[global::System.CodeDom.Compiler.GeneratedCode(\"Component Auto Bind\", \"0.1.0\")]",
+                    firstCode);
                 StringAssert.Contains("global::UnityEngine.UI.Button", firstCode);
                 StringAssert.DoesNotContain("UI" + "View", firstCode);
                 StringAssert.DoesNotContain("DateTime" + "." + "Now", firstCode);
@@ -135,6 +138,47 @@ namespace JasmineYamo.ComponentAutoBind.Tests.Editor
                     Directory.Delete(temporaryPath, true);
                 }
             }
+        }
+
+        [Test]
+        public void ValidatorAllowsLegacyGeneratedEnsureAutoBindMethod()
+        {
+            GameObject root = new GameObject("LegacyGeneratedTarget");
+            m_CreatedObjects.Add(root);
+            LegacyGeneratedTarget targetScript = root.AddComponent<LegacyGeneratedTarget>();
+            ComponentAutoBindTool tool = root.AddComponent<ComponentAutoBindTool>();
+            tool.m_targetScript = targetScript;
+            SetPrivateField(tool, "m_ClassName", nameof(LegacyGeneratedTarget));
+            SetPrivateField(tool, "m_Namespace", typeof(LegacyGeneratedTarget).Namespace);
+
+            AutoBindGlobalSetting setting = CreateObject<AutoBindGlobalSetting>();
+            SetPrivateField(setting, "m_CodePath", "Assets/Generated/ComponentAutoBindTool");
+
+            bool isValid = InvokeValidator(tool, setting, out string report);
+
+            Assert.That(isValid, Is.True, report);
+        }
+
+        [Test]
+        public void ValidatorRejectsUserDeclaredEnsureAutoBindMethod()
+        {
+            GameObject root = new GameObject("UserDeclaredEnsureTarget");
+            m_CreatedObjects.Add(root);
+            UserDeclaredEnsureTarget targetScript = root.AddComponent<UserDeclaredEnsureTarget>();
+            ComponentAutoBindTool tool = root.AddComponent<ComponentAutoBindTool>();
+            tool.m_targetScript = targetScript;
+            SetPrivateField(tool, "m_ClassName", nameof(UserDeclaredEnsureTarget));
+            SetPrivateField(tool, "m_Namespace", typeof(UserDeclaredEnsureTarget).Namespace);
+
+            AutoBindGlobalSetting setting = CreateObject<AutoBindGlobalSetting>();
+            SetPrivateField(setting, "m_CodePath", "Assets/Generated/ComponentAutoBindTool");
+
+            bool isValid = InvokeValidator(tool, setting, out string report);
+
+            Assert.That(isValid, Is.False);
+            StringAssert.Contains(
+                "The target type must not already declare EnsureAutoBind(GameObject)",
+                report);
         }
 
         private T CreateObject<T>() where T : ScriptableObject
@@ -165,11 +209,62 @@ namespace JasmineYamo.ComponentAutoBind.Tests.Editor
             return (string)generateMethod.Invoke(null, new object[] { tool, setting });
         }
 
+        private static bool InvokeValidator(
+            ComponentAutoBindTool tool,
+            AutoBindGlobalSetting setting,
+            out string report)
+        {
+            Type validatorType = typeof(AutoBindGlobalSetting).Assembly.GetType(
+                "JasmineYamo.ComponentAutoBind.Editor.AutoBindValidator");
+            Assert.That(validatorType, Is.Not.Null);
+            MethodInfo validateMethod = validatorType.GetMethod(
+                "Validate",
+                BindingFlags.Static | BindingFlags.Public);
+            Assert.That(validateMethod, Is.Not.Null);
+
+            object validationResult = validateMethod.Invoke(null, new object[] { tool, setting });
+            Type resultType = validationResult.GetType();
+            PropertyInfo isValidProperty = resultType.GetProperty(
+                "IsValid",
+                BindingFlags.Instance | BindingFlags.Public);
+            MethodInfo buildReportMethod = resultType.GetMethod(
+                "BuildReport",
+                BindingFlags.Instance | BindingFlags.Public);
+            Assert.That(isValidProperty, Is.Not.Null);
+            Assert.That(buildReportMethod, Is.Not.Null);
+
+            report = (string)buildReportMethod.Invoke(validationResult, null);
+            return (bool)isValidProperty.GetValue(validationResult);
+        }
+
         private sealed class EditorTestComponent : MonoBehaviour
         {
         }
 
         private sealed class EditorTestTarget : MonoBehaviour
+        {
+        }
+    }
+
+    public sealed class LegacyGeneratedTarget : MonoBehaviour, IAutoBindTarget
+    {
+        [Serializable]
+        public sealed class AutoBindComponentSet : IAutoBindComponentSet
+        {
+        }
+
+        private AutoBindComponentSet m_AutoBindComponents;
+
+        public void EnsureAutoBind(GameObject go)
+        {
+            m_AutoBindComponents = m_AutoBindComponents
+                ?? new AutoBindComponentSet();
+        }
+    }
+
+    public sealed class UserDeclaredEnsureTarget : MonoBehaviour, IAutoBindTarget
+    {
+        public void EnsureAutoBind(GameObject go)
         {
         }
     }

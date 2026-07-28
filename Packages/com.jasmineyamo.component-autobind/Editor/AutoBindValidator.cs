@@ -1,4 +1,5 @@
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -54,7 +55,8 @@ namespace JasmineYamo.ComponentAutoBind.Editor
                 null,
                 new[] { typeof(GameObject) },
                 null);
-            if (declaredEnsureMethod != null)
+            if (declaredEnsureMethod != null
+                && !IsGeneratedEnsureAutoBindMethod(targetType, declaredEnsureMethod))
             {
                 result.AddError(
                     "The target type must not already declare EnsureAutoBind(GameObject); "
@@ -169,6 +171,37 @@ namespace JasmineYamo.ComponentAutoBind.Editor
                         $"Binding entry [{i}] references component '{bindComponent.name}' outside the Auto Bind root.");
                 }
             }
+        }
+
+        private static bool IsGeneratedEnsureAutoBindMethod(
+            Type targetType,
+            MethodInfo ensureMethod)
+        {
+            GeneratedCodeAttribute generatedCode =
+                ensureMethod.GetCustomAttribute<GeneratedCodeAttribute>();
+            if (generatedCode != null
+                && string.Equals(
+                    generatedCode.Tool,
+                    "Component Auto Bind",
+                    StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            Type componentSetType = targetType.GetNestedType(
+                "AutoBindComponentSet",
+                BindingFlags.Public | BindingFlags.NonPublic);
+            if (componentSetType == null
+                || !typeof(IAutoBindComponentSet).IsAssignableFrom(componentSetType))
+            {
+                return false;
+            }
+
+            FieldInfo componentSetField = targetType.GetField(
+                "m_AutoBindComponents",
+                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+            return componentSetField != null
+                && componentSetField.FieldType == componentSetType;
         }
 
         private static bool IsComponentUnderRoot(Transform root, Component component)

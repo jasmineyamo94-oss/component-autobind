@@ -19,6 +19,3 @@
 # OS files
 .DS_Store
 Thumbs.db
-
-# Package-manager caches
-Packages/com.jasmineyamo.component-autobind/Tests/Fixtures/Project/Library/
