@@ -1,59 +1,73 @@
 # Component Auto Bind
 
-`com.jasmineyamo.component-autobind` is a small Unity package that scans a GameObject hierarchy, stores component references, and generates a strongly typed component set for a target `MonoBehaviour`.
+`com.jasmineyamo.component-autobind` 是一个轻量级 Unity 包。它能够扫描 GameObject 层级、保存组件引用，并为目标 `MonoBehaviour` 生成强类型的 `UIView`。
 
-The package is intended for Unity `2022.3` LTS and uses the built-in UGUI component types for its default key map. TextMeshPro and dependency-injection integrations are deliberately outside the core package.
+该包面向 Unity `2022.3` LTS，默认键映射使用 Unity 内置的 UGUI 组件类型。核心包不包含 TextMeshPro；如需 VContainer 支持，可安装可选的配套包。
 
-## Install
+## 安装
 
-In Unity Package Manager, choose **Add package from git URL** and enter:
+在 Unity Package Manager 中选择 **Add package from git URL**，然后输入：
 
 ```text
-https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.jasmineyamo.component-autobind#v0.1.0
+https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.jasmineyamo.component-autobind#v0.2.0
 ```
 
-The repository is public, so no credentials or GitHub package registry setup is required.
+该仓库为公开仓库，无需凭据，也无需配置 GitHub Package Registry。
 
-## Quick start
+## 快速开始
 
-1. Open `Tools/Component Auto Bind/Create Global Settings`.
-2. Open `Tools/Component Auto Bind/Create Key Map Settings`.
-3. Add `ComponentAutoBindTool` to the same GameObject as the target `MonoBehaviour`.
-4. Assign the target script in the Inspector.
-5. Name child objects with a component key and suffix, for example `Btn_Submit` or `Txt_Status`.
-6. Click `Auto Bind` to scan the hierarchy and review the validation report.
-7. Click `Generate Code` after validation passes.
+1. 打开 `Tools/Component Auto Bind/Create Global Settings`。
+2. 打开 `Tools/Component Auto Bind/Create Key Map Settings`。
+3. 将 `ComponentAutoBindTool` 添加到目标 `MonoBehaviour` 所在的 GameObject。
+4. 在 Inspector 中指定目标脚本。
+5. 使用组件键和后缀命名子对象，例如 `Btn_Submit` 或 `Txt_Status`。
+6. 点击 `Auto Bind` 扫描层级。
+7. 点击 `Generate Code` 进行验证并写入生成的源代码。
 
-Generated files are written to `Assets/Generated/ComponentAutoBindTool` by default. Generated files are project source and should be committed to the consumer project.
+生成的文件默认写入 `Assets/Generated/ComponentAutoBindTool`。这些文件属于项目源代码，应提交到使用该包的项目中。两个操作按钮都会直接在 Unity Console 中报告成功、警告和错误，不会弹出确认对话框。
 
-## Default keys
+## 默认键
 
-The initial key map includes `Tf`, `OAni`, `NAni`, `Rtf`, `Cav`, `CGroup`, `VLGroup`, `HLGroup`, `GLGroup`, `TGroup`, `Btn`, `Img`, `RImg`, `Txt`, `Inf`, `Sld`, `Mask`, `Mask2D`, `Tog`, `Sbr`, `SRect`, and `Drop`.
+初始键映射包含 `Tf`、`OAni`、`NAni`、`Rtf`、`Cav`、`CGroup`、`VLGroup`、`HLGroup`、`GLGroup`、`TGroup`、`Btn`、`Img`、`RImg`、`Txt`、`Inf`、`Sld`、`Mask`、`Mask2D`、`Tog`、`Sbr`、`SRect` 和 `Drop`。
 
-For a name such as `Btn_Submit`, the scanner resolves `Btn` to `UnityEngine.UI.Button` and generates the field `submit`. Multiple component prefixes are supported, for example `Btn_Txt_Submit` creates both bindings using the same suffix.
+对于 `Btn_Submit` 这样的名称，扫描器会将 `Btn` 解析为 `UnityEngine.UI.Button`，并生成字段 `submit`。名称支持多个组件前缀，例如 `Btn_Txt_Submit` 会使用同一个后缀创建两个绑定。
 
-Custom mappings are stored in the consumer project asset at `Assets/Settings/ComponentAutoBindTool/AutoBindKeyMapSetting.asset`. They store a key and a component type name; no project assembly is copied into this package.
+自定义映射保存在使用方项目的 `Assets/Settings/ComponentAutoBindTool/AutoBindKeyMapSetting.asset` 资源中。每条映射包含一个键和一个组件类型名称；项目程序集不会被复制到该包中。
 
-## Runtime contracts
+## 运行时约定
 
-The runtime assembly is `JasmineYamo.ComponentAutoBind` and exposes:
+运行时程序集为 `JasmineYamo.ComponentAutoBind`，它公开：
 
-- `ComponentAutoBindTool` for serialized component references and typed lookups.
-- `IAutoBindTarget` for generated target initialization.
-- `IAutoBindComponentSet` as the marker contract for generated component sets.
+- `ComponentAutoBindTool`：用于序列化组件引用和类型化查找。
+- `IAutoBindHost`：用于初始化生成的目标。
+- `IUiViewComponent`：作为生成的 `UIView` 类型的标记约定。
 
-The editor assembly is separate and is included only in the Unity Editor. The generator emits a partial target class, a nested `AutoBindComponentSet`, and an `EnsureAutoBind(GameObject)` implementation.
+Editor 程序集独立存在，且仅包含在 Unity Editor 中。生成器会生成目标分部类、嵌套的 `UIView`、私有 `view` 字段，以及 `EnsureAutoBind(GameObject)` 实现。
 
-## Sample and tests
+## VContainer + ViewCore 集成
 
-Import **Basic UGUI** from the package Samples tab to try a code-only sample. It creates a Canvas, a Button, and a legacy UGUI Text component at runtime, so it does not depend on a scene asset or TextMeshPro.
+可选包 `com.jasmineyamo.component-autobind.vcontainer-viewcore` 提供 `ViewLifetimeScope`、`ViewBundle`、具体 `UIView` 注册，以及 Presenter EntryPoint 注册。
 
-The package includes Runtime and Editor tests under `Tests/`. Run them from Unity Test Runner with `UNITY_INCLUDE_TESTS` enabled.
+请先安装核心包，再添加：
 
-## Scope
+```text
+https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.jasmineyamo.component-autobind.vcontainer-viewcore#v0.2.0
+```
 
-This package intentionally does not contain VContainer adapters, ViewCore interfaces, generated game-project bindings, project settings assets, old example scenes, or third-party generic dictionary code. An integration package can depend on this core package later without coupling the core runtime to a specific DI framework.
+请单独安装 `jp.hadashikick.vcontainer`。配套包不会固定 VContainer 版本。未安装 VContainer 时，其运行时程序集会被跳过，并且 Unity Console 会在每次 Editor 会话中报告一次警告；核心包仍可正常使用。
 
-See [Documentation~/GettingStarted.md](Documentation~/GettingStarted.md) for configuration details and [CHANGELOG.md](CHANGELOG.md) for release history.
+安装配套包和 VContainer 后，可在 Project 窗口中使用 **Create > C# Scripts > VContainer View** 创建配套的 View 和 Presenter。例如，`AutoBindTestView` 会创建 `AutoBindTestView.cs` 和 `AutoBindTestPresenter.cs`。Presenter 通过构造函数注入具体的生成 `UIView` 和共享的 `ViewBundle`。
+
+## 示例与测试
+
+从包的 Samples 标签页导入 **Basic UGUI**，即可体验纯代码示例。该示例会在运行时创建 Canvas、Button 和旧版 UGUI Text 组件，因此不依赖场景资源或 TextMeshPro。
+
+各包在 `Tests/` 下包含 Runtime 和 Editor 测试。启用 `UNITY_INCLUDE_TESTS` 后，可通过 Unity Test Runner 运行这些测试。
+
+## 范围
+
+核心包有意不包含 VContainer 适配器、生成的游戏项目绑定、项目设置资源、旧示例场景或第三方泛型字典代码。可选的集成包使核心运行时保持对 VContainer 的独立性。
+
+配置详情请参阅 [Documentation~/GettingStarted.md](Documentation~/GettingStarted.md)，版本历史请参阅 [CHANGELOG.md](CHANGELOG.md)。
 
 参考库：[CatImmortal/ComponentAutoBindTool](https://github.com/CatImmortal/ComponentAutoBindTool)

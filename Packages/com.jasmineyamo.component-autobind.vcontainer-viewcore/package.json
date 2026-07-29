@@ -1,11 +1,11 @@
 {
-  "name": "com.jasmineyamo.component-autobind",
-  "displayName": "Component Auto Bind",
-  "version": "0.2.0",
+  "name": "com.jasmineyamo.component-autobind.vcontainer-viewcore",
+  "displayName": "Component Auto Bind - VContainer ViewCore",
+  "version": "0.1.0",
   "unity": "2022.3",
-  "description": "Editor-assisted component binding and source generation for Unity.",
+  "description": "Optional VContainer and ViewCore integration for Component Auto Bind.",
   "homepage": "https://github.com/jasmineyamo94-oss/component-autobind",
-  "documentationUrl": "https://github.com/jasmineyamo94-oss/component-autobind#readme",
+  "documentationUrl": "https://github.com/jasmineyamo94-oss/component-autobind#vcontainer--viewcore-integration",
   "changelogUrl": "https://github.com/jasmineyamo94-oss/component-autobind/blob/main/CHANGELOG.md",
   "licensesUrl": "https://github.com/jasmineyamo94-oss/component-autobind/blob/main/LICENSE",
   "repository": {
@@ -16,8 +16,8 @@
     "unity",
     "component",
     "binding",
-    "ui",
-    "code-generation"
+    "vcontainer",
+    "viewcore"
   ],
   "author": {
     "name": "JasmineYamo",
@@ -25,14 +25,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "com.unity.ugui": "1.0.0",
+    "com.jasmineyamo.component-autobind": "0.2.0",
     "com.unity.test-framework": "1.1.33"
-  },
-  "samples": [
-    {
-      "displayName": "Basic UGUI",
-      "description": "A minimal UGUI component binding and code generation example.",
-      "path": "Samples~/BasicUGUI"
-    }
-  ]
+  }
 }

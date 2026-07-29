@@ -121,14 +121,17 @@ namespace JasmineYamo.ComponentAutoBind.Tests.Editor
 
                 Assert.That(firstPath, Is.EqualTo(secondPath));
                 Assert.That(secondCode, Is.EqualTo(firstCode));
-                StringAssert.Contains("IAutoBindTarget", firstCode);
-                StringAssert.Contains("IAutoBindComponentSet", firstCode);
-                StringAssert.Contains("AutoBindComponentSet", firstCode);
+                StringAssert.Contains("IAutoBindHost", firstCode);
+                StringAssert.Contains("IUiViewComponent", firstCode);
+                StringAssert.Contains("public class UIView", firstCode);
+                StringAssert.Contains("private UIView view;", firstCode);
                 StringAssert.Contains(
-                    "[global::System.CodeDom.Compiler.GeneratedCode(\"Component Auto Bind\", \"0.1.0\")]",
+                    "[global::System.CodeDom.Compiler.GeneratedCode(\"Component Auto Bind\", \"0.2.0\")]",
                     firstCode);
                 StringAssert.Contains("global::UnityEngine.UI.Button", firstCode);
-                StringAssert.DoesNotContain("UI" + "View", firstCode);
+                StringAssert.DoesNotContain("IAutoBind" + "Target", firstCode);
+                StringAssert.DoesNotContain("IAutoBind" + "ComponentSet", firstCode);
+                StringAssert.DoesNotContain("AutoBind" + "ComponentSet", firstCode);
                 StringAssert.DoesNotContain("DateTime" + "." + "Now", firstCode);
             }
             finally
@@ -141,7 +144,106 @@ namespace JasmineYamo.ComponentAutoBind.Tests.Editor
         }
 
         [Test]
-        public void ValidatorAllowsLegacyGeneratedEnsureAutoBindMethod()
+        public void GeneratedCodeOverridesVirtualEnsureAutoBindAndSupportsEmptyBindings()
+        {
+            GameObject root = new GameObject("InheritedEditorTestTarget");
+            m_CreatedObjects.Add(root);
+            InheritedEditorTestTarget targetScript = root.AddComponent<InheritedEditorTestTarget>();
+            ComponentAutoBindTool tool = root.AddComponent<ComponentAutoBindTool>();
+            tool.m_targetScript = targetScript;
+            SetPrivateField(tool, "m_ClassName", nameof(InheritedEditorTestTarget));
+            SetPrivateField(tool, "m_Namespace", typeof(InheritedEditorTestTarget).Namespace);
+            tool.BindDatas = new List<ComponentAutoBindTool.BindData>();
+
+            AutoBindGlobalSetting setting = CreateObject<AutoBindGlobalSetting>();
+            string temporaryPath = Path.Combine(
+                Path.GetTempPath(),
+                "component-autobind-inherited-test-" + Guid.NewGuid().ToString("N"));
+            SetPrivateField(setting, "m_CodePath", temporaryPath);
+
+            try
+            {
+                string code = File.ReadAllText(InvokeCodeGenerator(tool, setting));
+
+                StringAssert.Contains(
+                    "InheritedEditorTestTarget : global::JasmineYamo.ComponentAutoBind.IAutoBindHost",
+                    code);
+                StringAssert.Contains("public override void EnsureAutoBind(GameObject go)", code);
+                StringAssert.Contains("public class UIView", code);
+                StringAssert.DoesNotContain("public new class UIView", code);
+                StringAssert.Contains("private UIView view;", code);
+                StringAssert.DoesNotContain("private new UIView view;", code);
+                StringAssert.Contains("view = new UIView", code);
+            }
+            finally
+            {
+                if (Directory.Exists(temporaryPath))
+                {
+                    Directory.Delete(temporaryPath, true);
+                }
+            }
+        }
+
+        [Test]
+        public void GeneratedCodeHidesInheritedUIViewAndViewField()
+        {
+            GameObject root = new GameObject("PlaceholderInheritedEditorTestTarget");
+            m_CreatedObjects.Add(root);
+            PlaceholderInheritedEditorTestTarget targetScript =
+                root.AddComponent<PlaceholderInheritedEditorTestTarget>();
+            ComponentAutoBindTool tool = root.AddComponent<ComponentAutoBindTool>();
+            tool.m_targetScript = targetScript;
+            SetPrivateField(tool, "m_ClassName", nameof(PlaceholderInheritedEditorTestTarget));
+            SetPrivateField(
+                tool,
+                "m_Namespace",
+                typeof(PlaceholderInheritedEditorTestTarget).Namespace);
+            tool.BindDatas = new List<ComponentAutoBindTool.BindData>();
+
+            AutoBindGlobalSetting setting = CreateObject<AutoBindGlobalSetting>();
+            string temporaryPath = Path.Combine(
+                Path.GetTempPath(),
+                "component-autobind-placeholder-test-" + Guid.NewGuid().ToString("N"));
+            SetPrivateField(setting, "m_CodePath", temporaryPath);
+
+            try
+            {
+                string code = File.ReadAllText(InvokeCodeGenerator(tool, setting));
+
+                StringAssert.Contains("public new class UIView", code);
+                StringAssert.Contains("private new UIView view;", code);
+                StringAssert.Contains("public override void EnsureAutoBind(GameObject go)", code);
+            }
+            finally
+            {
+                if (Directory.Exists(temporaryPath))
+                {
+                    Directory.Delete(temporaryPath, true);
+                }
+            }
+        }
+
+        [Test]
+        public void ValidatorAllowsGeneratedUIViewEnsureAutoBindMethod()
+        {
+            GameObject root = new GameObject("GeneratedUIViewTarget");
+            m_CreatedObjects.Add(root);
+            GeneratedUIViewTarget targetScript = root.AddComponent<GeneratedUIViewTarget>();
+            ComponentAutoBindTool tool = root.AddComponent<ComponentAutoBindTool>();
+            tool.m_targetScript = targetScript;
+            SetPrivateField(tool, "m_ClassName", nameof(GeneratedUIViewTarget));
+            SetPrivateField(tool, "m_Namespace", typeof(GeneratedUIViewTarget).Namespace);
+
+            AutoBindGlobalSetting setting = CreateObject<AutoBindGlobalSetting>();
+            SetPrivateField(setting, "m_CodePath", "Assets/Generated/ComponentAutoBindTool");
+
+            bool isValid = InvokeValidator(tool, setting, out string report);
+
+            Assert.That(isValid, Is.True, report);
+        }
+
+        [Test]
+        public void ValidatorAllowsLegacyGeneratedEnsureAutoBindShape()
         {
             GameObject root = new GameObject("LegacyGeneratedTarget");
             m_CreatedObjects.Add(root);
@@ -246,10 +348,49 @@ namespace JasmineYamo.ComponentAutoBind.Tests.Editor
         }
     }
 
-    public sealed class LegacyGeneratedTarget : MonoBehaviour, IAutoBindTarget
+    public class AutoBindHostBase : MonoBehaviour, IAutoBindHost
+    {
+        public virtual void EnsureAutoBind(GameObject go)
+        {
+        }
+    }
+
+    public sealed class InheritedEditorTestTarget : AutoBindHostBase
+    {
+    }
+
+    public class PlaceholderAutoBindHostBase : AutoBindHostBase
+    {
+        public class UIView : IUiViewComponent
+        {
+        }
+
+        protected UIView view;
+    }
+
+    public sealed class PlaceholderInheritedEditorTestTarget : PlaceholderAutoBindHostBase
+    {
+    }
+
+    public sealed class GeneratedUIViewTarget : MonoBehaviour, IAutoBindHost
     {
         [Serializable]
-        public sealed class AutoBindComponentSet : IAutoBindComponentSet
+        public class UIView : IUiViewComponent
+        {
+        }
+
+        private UIView view;
+
+        public void EnsureAutoBind(GameObject go)
+        {
+            view = view ?? new UIView();
+        }
+    }
+
+    public sealed class LegacyGeneratedTarget : MonoBehaviour, IAutoBindHost
+    {
+        [Serializable]
+        public sealed class AutoBindComponentSet
         {
         }
 
@@ -262,7 +403,7 @@ namespace JasmineYamo.ComponentAutoBind.Tests.Editor
         }
     }
 
-    public sealed class UserDeclaredEnsureTarget : MonoBehaviour, IAutoBindTarget
+    public sealed class UserDeclaredEnsureTarget : MonoBehaviour, IAutoBindHost
     {
         public void EnsureAutoBind(GameObject go)
         {

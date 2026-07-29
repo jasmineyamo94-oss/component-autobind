@@ -1,0 +1,26 @@
+{
+  "name": "JasmineYamo.ComponentAutoBind.VContainerViewCore",
+  "rootNamespace": "JasmineYamo.ComponentAutoBind.ViewCore",
+  "references": [
+    "JasmineYamo.ComponentAutoBind",
+    "UnityEngine.UI",
+    "VContainer"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [
+    "JASMINEYAMO_VCONTAINER"
+  ],
+  "versionDefines": [
+    {
+      "name": "jp.hadashikick.vcontainer",
+      "expression": "",
+      "define": "JASMINEYAMO_VCONTAINER"
+    }
+  ],
+  "noEngineReferences": false
+}

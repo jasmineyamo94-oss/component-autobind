@@ -50,7 +50,7 @@ namespace JasmineYamo.ComponentAutoBind.Editor
             }
 
             MethodInfo declaredEnsureMethod = targetType.GetMethod(
-                nameof(IAutoBindTarget.EnsureAutoBind),
+                nameof(IAutoBindHost.EnsureAutoBind),
                 BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly,
                 null,
                 new[] { typeof(GameObject) },
@@ -122,7 +122,7 @@ namespace JasmineYamo.ComponentAutoBind.Editor
             if (bindDatas == null || bindDatas.Count == 0)
             {
                 result.AddWarning(
-                    "There are no component bindings. The generated component set will be empty.");
+                    "There are no component bindings. The generated UIView will be empty.");
                 return;
             }
 
@@ -188,20 +188,43 @@ namespace JasmineYamo.ComponentAutoBind.Editor
                 return true;
             }
 
-            Type componentSetType = targetType.GetNestedType(
+            if (HasGeneratedBindingShape(
+                targetType,
+                "UIView",
+                "view",
+                typeof(IUiViewComponent)))
+            {
+                return true;
+            }
+
+            return HasGeneratedBindingShape(
+                targetType,
                 "AutoBindComponentSet",
+                "m_AutoBindComponents",
+                null);
+        }
+
+        private static bool HasGeneratedBindingShape(
+            Type targetType,
+            string nestedTypeName,
+            string fieldName,
+            Type requiredContract)
+        {
+            Type bindingType = targetType.GetNestedType(
+                nestedTypeName,
                 BindingFlags.Public | BindingFlags.NonPublic);
-            if (componentSetType == null
-                || !typeof(IAutoBindComponentSet).IsAssignableFrom(componentSetType))
+            if (bindingType == null
+                || (requiredContract != null
+                    && !requiredContract.IsAssignableFrom(bindingType)))
             {
                 return false;
             }
 
-            FieldInfo componentSetField = targetType.GetField(
-                "m_AutoBindComponents",
+            FieldInfo bindingField = targetType.GetField(
+                fieldName,
                 BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
-            return componentSetField != null
-                && componentSetField.FieldType == componentSetType;
+            return bindingField != null
+                && bindingField.FieldType == bindingType;
         }
 
         private static bool IsComponentUnderRoot(Transform root, Component component)
