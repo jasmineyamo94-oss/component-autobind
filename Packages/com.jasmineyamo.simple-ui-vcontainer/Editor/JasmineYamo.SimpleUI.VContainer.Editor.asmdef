@@ -1,0 +1,24 @@
+{
+  "name": "JasmineYamo.SimpleUI.VContainer.Editor",
+  "rootNamespace": "JasmineYamo.SimpleUI.VContainer.Editor",
+  "references": [
+    "JasmineYamo.ComponentAutoBind.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [
+    {
+      "name": "jp.hadashikick.vcontainer",
+      "expression": "",
+      "define": "JASMINEYAMO_SIMPLE_UI_VCONTAINER"
+    }
+  ],
+  "noEngineReferences": false
+}

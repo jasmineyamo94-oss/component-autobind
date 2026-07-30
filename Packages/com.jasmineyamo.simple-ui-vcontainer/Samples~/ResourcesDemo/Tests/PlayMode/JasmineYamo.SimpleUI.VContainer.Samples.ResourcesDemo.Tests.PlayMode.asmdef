@@ -1,0 +1,32 @@
+{
+  "name": "JasmineYamo.SimpleUI.VContainer.Samples.ResourcesDemo.Tests.PlayMode",
+  "rootNamespace": "JasmineYamo.SimpleUI.VContainer.Samples.ResourcesDemo.Tests",
+  "references": [
+    "JasmineYamo.SimpleUI.VContainer",
+    "JasmineYamo.SimpleUI.VContainer.Samples.ResourcesDemo",
+    "JasmineYamo.SimpleUI.VContainer.Samples.ResourcesDemo.Demo",
+    "UnityEngine.UI",
+    "VContainer"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS",
+    "JASMINEYAMO_SIMPLE_UI_VCONTAINER"
+  ],
+  "versionDefines": [
+    {
+      "name": "jp.hadashikick.vcontainer",
+      "expression": "",
+      "define": "JASMINEYAMO_SIMPLE_UI_VCONTAINER"
+    }
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "noEngineReferences": false
+}

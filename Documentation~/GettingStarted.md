@@ -54,7 +54,7 @@ Commit generated files in the consumer project. They are not part of this packag
 
 ## VContainer View templates
 
-When the optional VContainer ViewCore package and VContainer are installed,
+When the optional Simple UI - VContainer package and VContainer are installed,
 right-click the Project window and choose **Create > C# Scripts VContainer
 View**. Enter `AutoBindTest` or `AutoBindTestView` in the modal creation window
 to preview and create:
@@ -80,4 +80,10 @@ Use the `Add Component To Auto Bind Key Map` context-menu command on a `MonoBeha
 
 ## Package boundaries
 
-The core package contains only the reusable runtime component, editor workflow, default UGUI mappings, tests, and a minimal sample. The optional `com.jasmineyamo.component-autobind.vcontainer-viewcore` companion package supplies `ViewLifetimeScope`, `ViewBundle`, and the paired View/Presenter creation menu. Consumer settings, generated bindings, project-specific view management, and project-only dependencies stay outside both packages.
+The core package contains only the reusable runtime component, editor workflow,
+default UGUI mappings, tests, and a minimal sample. The optional
+`com.jasmineyamo.simple-ui-vcontainer` package supplies `ViewLifetimeScope`,
+`ViewBundle`, `ViewManager`, four independent navigation layers, View lifecycle
+policies, and the paired View/Presenter creation menu. Consumer settings,
+generated bindings, prefab-loading implementations, and project-only
+dependencies stay outside the core package.

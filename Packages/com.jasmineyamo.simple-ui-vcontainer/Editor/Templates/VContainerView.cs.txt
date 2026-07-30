@@ -1,0 +1,13 @@
+using JasmineYamo.SimpleUI.VContainer;
+using VContainer;
+
+#NAMESPACE_BODY#
+public partial class #VIEW_NAME# : ViewLifetimeScope
+{
+    protected override void Configure(IContainerBuilder builder)
+    {
+        base.Configure(builder);
+
+        RegisterCommon<#PRESENTER_NAME#>(builder, view);
+    }
+}

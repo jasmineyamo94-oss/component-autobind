@@ -44,19 +44,19 @@ https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.j
 
 Editor 程序集独立存在，且仅包含在 Unity Editor 中。生成器会生成目标分部类、嵌套的 `UIView`、私有 `view` 字段，以及 `EnsureAutoBind(GameObject)` 实现。
 
-## VContainer + ViewCore 集成
+## Simple UI - VContainer
 
-可选包 `com.jasmineyamo.component-autobind.vcontainer-viewcore` 提供 `ViewLifetimeScope`、`ViewBundle`、具体 `UIView` 注册，以及 Presenter EntryPoint 注册。
+可选包 `com.jasmineyamo.simple-ui-vcontainer` 将 Component Auto Bind、VContainer View 和 ViewManager 整合为一个轻量 UI 框架。它提供 `ViewLifetimeScope`、`ViewBundle`、Presenter EntryPoint、四层导航栈、等待队列，以及 View 缓存和延迟销毁。
 
 请先安装核心包，再添加：
 
 ```text
-https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.jasmineyamo.component-autobind.vcontainer-viewcore#v0.2.0
+https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.jasmineyamo.simple-ui-vcontainer#v0.2.0
 ```
 
 请单独安装 `jp.hadashikick.vcontainer`。配套包不会固定 VContainer 版本。未安装 VContainer 时，其运行时程序集会被跳过，并且 Unity Console 会在每次 Editor 会话中报告一次警告；核心包仍可正常使用。
 
-安装配套包和 VContainer 后，可在 Project 窗口中使用 **Create > C# Scripts > VContainer View** 创建配套的 View 和 Presenter。例如，`AutoBindTestView` 会创建 `AutoBindTestView.cs` 和 `AutoBindTestPresenter.cs`。Presenter 通过构造函数注入具体的生成 `UIView` 和共享的 `ViewBundle`。
+安装配套包和 VContainer 后，可在 Project 窗口中使用 **Create > C# Scripts VContainer View** 创建配套的 View 和 Presenter。例如，`AutoBindTestView` 会创建 `AutoBindTestView.cs` 和 `AutoBindTestPresenter.cs`。Presenter 通过构造函数注入具体的生成 `UIView` 和共享的 `ViewBundle`。可从该包的 Samples 页面导入 **Resources Demo** 查看完整运行示例。
 
 ## 示例与测试
 
@@ -66,8 +66,8 @@ https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.j
 
 ## 范围
 
-核心包有意不包含 VContainer 适配器、生成的游戏项目绑定、项目设置资源、旧示例场景或第三方泛型字典代码。可选的集成包使核心运行时保持对 VContainer 的独立性。
+核心包有意不包含 VContainer 适配器、生成的游戏项目绑定、项目设置资源、旧示例场景或第三方泛型字典代码。可选的 Simple UI 包使核心运行时保持对 VContainer 的独立性。
 
 配置详情请参阅 [Documentation~/GettingStarted.md](Documentation~/GettingStarted.md)，版本历史请参阅 [CHANGELOG.md](CHANGELOG.md)。
 
-参考库：[CatImmortal/ComponentAutoBindTool](https://github.com/CatImmortal/ComponentAutoBindTool)
+基于此库进行改动：[CatImmortal/ComponentAutoBindTool](https://github.com/CatImmortal/ComponentAutoBindTool)

@@ -4,7 +4,7 @@ param()
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $packageRoot = Join-Path $repositoryRoot 'Packages/com.jasmineyamo.component-autobind'
-$integrationPackageRoot = Join-Path $repositoryRoot 'Packages/com.jasmineyamo.component-autobind.vcontainer-viewcore'
+$integrationPackageRoot = Join-Path $repositoryRoot 'Packages/com.jasmineyamo.simple-ui-vcontainer'
 $manifestPath = Join-Path $packageRoot 'package.json'
 $integrationManifestPath = Join-Path $integrationPackageRoot 'package.json'
 
@@ -83,12 +83,16 @@ if (-not (Test-Path -LiteralPath $integrationManifestPath)) {
 
 $integrationManifest =
     Get-Content -Raw -LiteralPath $integrationManifestPath | ConvertFrom-Json
-if ($integrationManifest.name -ne 'com.jasmineyamo.component-autobind.vcontainer-viewcore') {
+if ($integrationManifest.name -ne 'com.jasmineyamo.simple-ui-vcontainer') {
     throw "Unexpected integration package name: $($integrationManifest.name)"
 }
 
 if ($integrationManifest.version -ne '0.1.0') {
     throw "Integration package validation expects version 0.1.0, found $($integrationManifest.version)"
+}
+
+if ($integrationManifest.displayName -ne 'Simple UI - VContainer') {
+    throw "Unexpected Simple UI display name: $($integrationManifest.displayName)"
 }
 
 if ($integrationManifest.unity -ne '2022.3') {
@@ -103,18 +107,33 @@ if ($integrationManifest.dependencies.PSObject.Properties.Name -contains 'jp.had
     throw 'The integration package must not pin a jp.hadashikick.vcontainer version.'
 }
 
+$resourcesDemo = $integrationManifest.samples |
+    Where-Object {
+        $_.displayName -eq 'Resources Demo' `
+            -and $_.path -eq 'Samples~/ResourcesDemo'
+    }
+if (-not $resourcesDemo) {
+    throw 'The Simple UI package must declare the Resources Demo Sample.'
+}
+
 $integrationRequiredPaths = @(
-    'Runtime/JasmineYamo.ComponentAutoBind.VContainerViewCore.asmdef',
+    'Runtime/JasmineYamo.SimpleUI.VContainer.asmdef',
     'Runtime/ViewLifetimeScope.cs',
     'Runtime/ViewBundle.cs',
-    'Editor/JasmineYamo.ComponentAutoBind.VContainerViewCore.Editor.asmdef',
+    'Runtime/ViewManager.cs',
+    'Runtime/ViewManagerContracts.cs',
+    'Runtime/SimpleUIVContainerBuilderExtensions.cs',
+    'Editor/JasmineYamo.SimpleUI.VContainer.Editor.asmdef',
     'Editor/VContainerDependencyNotifier.cs',
     'Editor/VContainerViewTemplateCreator.cs',
     'Editor/Templates/VContainerView.cs.txt',
     'Editor/Templates/VContainerViewPresenter.cs.txt',
-    'Tests/Editor/JasmineYamo.ComponentAutoBind.VContainerViewCore.Tests.Editor.asmdef',
+    'Tests/Editor/JasmineYamo.SimpleUI.VContainer.Tests.Editor.asmdef',
     'Tests/Editor/ViewLifetimeScopeTests.cs',
     'Tests/Editor/VContainerViewTemplateCreatorTests.cs',
+    'Tests/Editor/ViewManagerTests.cs',
+    'Samples~/ResourcesDemo/Runtime/ResourcesViewPrefabHelper.cs',
+    'Samples~/ResourcesDemo/Demo/ViewManagerSample.unity',
     'README.md'
 )
 
@@ -126,25 +145,62 @@ foreach ($relativePath in $integrationRequiredPaths) {
 }
 
 $integrationRuntimeAsmdefPath = Join-Path $integrationPackageRoot `
-    'Runtime/JasmineYamo.ComponentAutoBind.VContainerViewCore.asmdef'
+    'Runtime/JasmineYamo.SimpleUI.VContainer.asmdef'
 $integrationRuntimeAsmdef =
     Get-Content -Raw -LiteralPath $integrationRuntimeAsmdefPath | ConvertFrom-Json
-if ($integrationRuntimeAsmdef.defineConstraints -notcontains 'JASMINEYAMO_VCONTAINER') {
-    throw 'The integration runtime assembly must be conditional on JASMINEYAMO_VCONTAINER.'
+if ($integrationRuntimeAsmdef.name -ne 'JasmineYamo.SimpleUI.VContainer') {
+    throw "Unexpected Simple UI runtime assembly name: $($integrationRuntimeAsmdef.name)"
+}
+
+if ($integrationRuntimeAsmdef.defineConstraints -notcontains 'JASMINEYAMO_SIMPLE_UI_VCONTAINER') {
+    throw 'The Simple UI runtime assembly must be conditional on JASMINEYAMO_SIMPLE_UI_VCONTAINER.'
 }
 
 $vcontainerVersionDefine = $integrationRuntimeAsmdef.versionDefines |
     Where-Object {
         $_.name -eq 'jp.hadashikick.vcontainer' `
             -and $_.expression -eq '' `
-            -and $_.define -eq 'JASMINEYAMO_VCONTAINER'
+            -and $_.define -eq 'JASMINEYAMO_SIMPLE_UI_VCONTAINER'
     }
 if (-not $vcontainerVersionDefine) {
     throw 'The integration runtime assembly must detect any VContainer package version.'
 }
 
+$forbiddenIntegrationReferences = @(
+    'com.jasmineyamo.component-autobind.vcontainer-viewcore',
+    'JasmineYamo.ComponentAutoBind.VContainerViewCore',
+    'JasmineYamo.ComponentAutoBind.ViewCore',
+    'JASMINEYAMO_VCONTAINER',
+    'ManagedViewLifetimeScope',
+    'IViewManagerInjectable',
+    'IViewRootHelper',
+    'IViewEvent'
+)
+$integrationFiles = Get-ChildItem -LiteralPath $integrationPackageRoot -Recurse -File
+foreach ($integrationFile in $integrationFiles) {
+    $integrationContent = Get-Content -Raw -LiteralPath $integrationFile.FullName
+    foreach ($forbiddenReference in $forbiddenIntegrationReferences) {
+        if ($integrationContent.IndexOf(
+                $forbiddenReference,
+                [StringComparison]::Ordinal) -ge 0) {
+            $relativeFile =
+                $integrationFile.FullName.Substring($repositoryRoot.Length + 1)
+            throw "Forbidden legacy reference '$forbiddenReference' found in $relativeFile"
+        }
+    }
+}
+
+if (Test-Path -LiteralPath (Join-Path $integrationPackageRoot `
+        'Samples~/ResourcesDemo/Editor')) {
+    $sampleEditorFiles = Get-ChildItem -LiteralPath (Join-Path `
+        $integrationPackageRoot 'Samples~/ResourcesDemo/Editor') -File -Recurse
+    if ($sampleEditorFiles.Count -gt 0) {
+        throw 'Resources Demo must not ship a duplicate View creation Editor menu.'
+    }
+}
+
 $integrationEditorAsmdefPath = Join-Path $integrationPackageRoot `
-    'Editor/JasmineYamo.ComponentAutoBind.VContainerViewCore.Editor.asmdef'
+    'Editor/JasmineYamo.SimpleUI.VContainer.Editor.asmdef'
 $integrationEditorAsmdef =
     Get-Content -Raw -LiteralPath $integrationEditorAsmdefPath | ConvertFrom-Json
 if ($integrationEditorAsmdef.references -notcontains 'JasmineYamo.ComponentAutoBind.Editor') {
@@ -240,4 +296,4 @@ foreach ($asmdefFile in $asmdefFiles) {
 }
 
 Write-Host "Validated core package $($manifest.name) version $($manifest.version)."
-Write-Host "Validated integration package $($integrationManifest.name) version $($integrationManifest.version)."
+Write-Host "Validated Simple UI package $($integrationManifest.name) version $($integrationManifest.version)."

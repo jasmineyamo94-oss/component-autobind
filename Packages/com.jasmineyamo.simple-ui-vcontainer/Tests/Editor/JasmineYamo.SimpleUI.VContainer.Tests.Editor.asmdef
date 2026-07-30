@@ -1,0 +1,35 @@
+{
+  "name": "JasmineYamo.SimpleUI.VContainer.Tests.Editor",
+  "rootNamespace": "JasmineYamo.SimpleUI.VContainer.Tests",
+  "references": [
+    "JasmineYamo.ComponentAutoBind",
+    "JasmineYamo.ComponentAutoBind.Editor",
+    "JasmineYamo.SimpleUI.VContainer",
+    "JasmineYamo.SimpleUI.VContainer.Editor",
+    "UnityEngine.UI",
+    "VContainer"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS",
+    "JASMINEYAMO_SIMPLE_UI_VCONTAINER"
+  ],
+  "versionDefines": [
+    {
+      "name": "jp.hadashikick.vcontainer",
+      "expression": "",
+      "define": "JASMINEYAMO_SIMPLE_UI_VCONTAINER"
+    }
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "noEngineReferences": false
+}

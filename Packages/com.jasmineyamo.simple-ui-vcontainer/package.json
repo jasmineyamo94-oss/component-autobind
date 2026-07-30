@@ -1,0 +1,40 @@
+{
+  "name": "com.jasmineyamo.simple-ui-vcontainer",
+  "displayName": "Simple UI - VContainer",
+  "version": "0.1.0",
+  "unity": "2022.3",
+  "description": "A small VContainer-based UI framework with generated component binding.",
+  "homepage": "https://github.com/jasmineyamo94-oss/component-autobind",
+  "documentationUrl": "https://github.com/jasmineyamo94-oss/component-autobind#simple-ui---vcontainer",
+  "changelogUrl": "https://github.com/jasmineyamo94-oss/component-autobind/blob/main/CHANGELOG.md",
+  "licensesUrl": "https://github.com/jasmineyamo94-oss/component-autobind/blob/main/LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jasmineyamo94-oss/component-autobind.git"
+  },
+  "keywords": [
+    "unity",
+    "component",
+    "ui",
+    "navigation",
+    "vcontainer",
+    "view-manager"
+  ],
+  "author": {
+    "name": "JasmineYamo",
+    "url": "https://github.com/jasmineyamo94-oss"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "com.jasmineyamo.component-autobind": "0.2.0",
+    "com.unity.ugui": "1.0.0",
+    "com.unity.test-framework": "1.1.33"
+  },
+  "samples": [
+    {
+      "displayName": "Resources Demo",
+      "description": "A runnable uGUI demo using Resources-based View prefab loading.",
+      "path": "Samples~/ResourcesDemo"
+    }
+  ]
+}
