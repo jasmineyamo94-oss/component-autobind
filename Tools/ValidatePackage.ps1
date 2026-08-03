@@ -7,9 +7,82 @@ $packageRoot = Join-Path $repositoryRoot 'Packages/com.jasmineyamo.component-aut
 $integrationPackageRoot = Join-Path $repositoryRoot 'Packages/com.jasmineyamo.simple-ui-vcontainer'
 $manifestPath = Join-Path $packageRoot 'package.json'
 $integrationManifestPath = Join-Path $integrationPackageRoot 'package.json'
+$readmePath = Join-Path $repositoryRoot 'README.md'
+$contributingPath = Join-Path $repositoryRoot 'CONTRIBUTING.md'
+$attributesPath = Join-Path $repositoryRoot '.gitattributes'
+$coreTag = 'component-autobind-v0.2.0'
+$integrationTag = 'simple-ui-vcontainer-v0.1.0'
+$coreInstallUrl = 'https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.jasmineyamo.component-autobind#' + $coreTag
+$integrationInstallUrl = 'https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.jasmineyamo.simple-ui-vcontainer#' + $integrationTag
 
 if (-not (Test-Path -LiteralPath $manifestPath)) {
     throw "Package manifest not found: $manifestPath"
+}
+
+foreach ($documentationPath in @($readmePath, $contributingPath, $attributesPath)) {
+    if (-not (Test-Path -LiteralPath $documentationPath)) {
+        throw "Required repository file is missing: $documentationPath"
+    }
+}
+
+$readmeContent = [IO.File]::ReadAllText($readmePath)
+foreach ($installUrl in @($coreInstallUrl, $integrationInstallUrl)) {
+    if ($readmeContent.IndexOf($installUrl, [StringComparison]::Ordinal) -lt 0) {
+        throw "README is missing the planned install URL: $installUrl"
+    }
+}
+
+if ($readmeContent.IndexOf('#v0.2.0', [StringComparison]::Ordinal) -ge 0) {
+    throw 'README must not use the ambiguous legacy #v0.2.0 Git reference.'
+}
+
+if ($readmeContent.IndexOf(
+        'Release status: planned; tags not published.',
+        [StringComparison]::Ordinal) -lt 0) {
+    throw 'README must state that the planned Git tags are not published yet.'
+}
+
+$simpleUiReadmePath = Join-Path $integrationPackageRoot 'README.md'
+$simpleUiReadmeContent = [IO.File]::ReadAllText($simpleUiReadmePath)
+foreach ($requiredAddressablesPhrase in @(
+        'load View prefabs asynchronously',
+        'synchronous in-memory lookup',
+        'Do not call `WaitForCompletion`',
+        'project adapter that owns the preload cache')) {
+    if ($simpleUiReadmeContent.IndexOf(
+            $requiredAddressablesPhrase,
+            [StringComparison]::Ordinal) -lt 0) {
+        throw "Simple UI README is missing the Addressables contract: $requiredAddressablesPhrase"
+    }
+}
+
+$attributesContent = [IO.File]::ReadAllText($attributesPath)
+if ($attributesContent.IndexOf('.trellis/workspace', [StringComparison]::Ordinal) -ge 0) {
+    throw '.gitattributes must not contain Trellis workspace merge rules.'
+}
+
+if (Test-Path -LiteralPath (Join-Path $repositoryRoot '.git')) {
+    $trackedPaths = @(& git -C $repositoryRoot ls-files)
+    if ($LASTEXITCODE -ne 0) {
+        throw 'Unable to inspect tracked repository paths.'
+    }
+
+    foreach ($trackedPath in $trackedPaths) {
+        $normalizedTrackedPath = $trackedPath.Replace('\', '/')
+        if ($normalizedTrackedPath -eq 'AGENTS.md' `
+            -or $normalizedTrackedPath.EndsWith(
+                '/AGENTS.md',
+                [StringComparison]::OrdinalIgnoreCase)) {
+            throw 'Generated AGENTS.md must not be tracked in this publisher repository.'
+        }
+
+        $trackedSegments = $normalizedTrackedPath.Split('/')
+        foreach ($forbiddenSegment in @('.trellis', '.codex', '.agents')) {
+            if ($trackedSegments -contains $forbiddenSegment) {
+                throw "AI/Trellis authoring state must not be tracked: $normalizedTrackedPath"
+            }
+        }
+    }
 }
 
 $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json

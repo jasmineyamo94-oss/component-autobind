@@ -58,6 +58,12 @@ Import **Resources Demo** from this package's Samples page. It includes:
 - Home and Detail Views with generated bindings and Presenters.
 - A runnable scene and PlayMode smoke test.
 
-The Resources loader is sample-owned so projects can replace it with their own
-synchronous Addressables or asset-service adapter without adding dependencies
-to the package Runtime.
+The Resources loader is sample-owned so projects can replace it without adding
+an Addressables dependency to the package Runtime. An Addressables adapter must
+load View prefabs asynchronously before `ShowView` can run, retain the handles,
+and expose only a synchronous in-memory lookup from `IViewPrefabHelper`.
+
+Do not call `WaitForCompletion`, `.Result`, or any equivalent blocking wait from
+`GetViewPrefab`. The project adapter that owns the preload cache also owns handle
+release and must fail with a diagnostic that names the missing View when lookup
+occurs before preload has completed.

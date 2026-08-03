@@ -6,13 +6,25 @@
 
 ## 安装
 
-在 Unity Package Manager 中选择 **Add package from git URL**，然后输入：
+该仓库为公开仓库，无需凭据，也无需配置 GitHub Package Registry。两个 UPM 包独立发布，
+消费项目按以下顺序安装：
+
+1. 选择并安装与项目兼容的 `jp.hadashikick.vcontainer`。
+2. 安装 Component Auto Bind 核心包。
+3. 需要 View 导航与 VContainer 集成时，再安装 Simple UI - VContainer。
+
+计划发布的固定 Git URL 为：
 
 ```text
-https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.jasmineyamo.component-autobind#v0.2.0
+https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.jasmineyamo.component-autobind#component-autobind-v0.2.0
+
+https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.jasmineyamo.simple-ui-vcontainer#simple-ui-vcontainer-v0.1.0
 ```
 
-该仓库为公开仓库，无需凭据，也无需配置 GitHub Package Registry。
+> **发布状态：尚未发布。** 当前远端还没有上述 Git tag。只有在维护者完成验证并发布对应 tag
+> 后，才能把这些 URL 当作稳定安装入口；不要用未固定的 `main` 代替正式版本。
+>
+> Release status: planned; tags not published.
 
 ## 快速开始
 
@@ -48,13 +60,8 @@ Editor 程序集独立存在，且仅包含在 Unity Editor 中。生成器会�
 
 可选包 `com.jasmineyamo.simple-ui-vcontainer` 将 Component Auto Bind、VContainer View 和 ViewManager 整合为一个轻量 UI 框架。它提供 `ViewLifetimeScope`、`ViewBundle`、Presenter EntryPoint、四层导航栈、等待队列，以及 View 缓存和延迟销毁。
 
-请先安装核心包，再添加：
-
-```text
-https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.jasmineyamo.simple-ui-vcontainer#v0.2.0
-```
-
-请单独安装 `jp.hadashikick.vcontainer`。配套包不会固定 VContainer 版本。未安装 VContainer 时，其运行时程序集会被跳过，并且 Unity Console 会在每次 Editor 会话中报告一次警告；核心包仍可正常使用。
+请按[安装](#安装)章节的顺序添加依赖。配套包不会固定 VContainer 版本。未安装 VContainer 时，
+其运行时程序集会被跳过，并且 Unity Console 会在每次 Editor 会话中报告一次警告；核心包仍可正常使用。
 
 安装配套包和 VContainer 后，可在 Project 窗口中使用 **Create > C# Scripts VContainer View** 创建配套的 View 和 Presenter。例如，`AutoBindTestView` 会创建 `AutoBindTestView.cs` 和 `AutoBindTestPresenter.cs`。Presenter 通过构造函数注入具体的生成 `UIView` 和共享的 `ViewBundle`。可从该包的 Samples 页面导入 **Resources Demo** 查看完整运行示例。
 
@@ -68,6 +75,7 @@ https://github.com/jasmineyamo94-oss/component-autobind.git?path=/Packages/com.j
 
 核心包有意不包含 VContainer 适配器、生成的游戏项目绑定、项目设置资源、旧示例场景或第三方泛型字典代码。可选的 Simple UI 包使核心运行时保持对 VContainer 的独立性。
 
-配置详情请参阅 [Documentation~/GettingStarted.md](Documentation~/GettingStarted.md)，版本历史请参阅 [CHANGELOG.md](CHANGELOG.md)。
+配置详情请参阅 [Documentation~/GettingStarted.md](Documentation~/GettingStarted.md)，版本历史请参阅
+[CHANGELOG.md](CHANGELOG.md)，维护和发布要求请参阅 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
 基于此库进行改动：[CatImmortal/ComponentAutoBindTool](https://github.com/CatImmortal/ComponentAutoBindTool)
